@@ -1,0 +1,84 @@
+
+<div class="container-fluid ">
+  <div class="row">
+    <div class="col-sm-12">
+      <div class="panel panel-primary filterable table_border">
+        <div class="panel-heading table_new">
+          <% if teacher_logged_in? %><h3 class="panel-title">授课列表</h3>
+          <% end %>
+          <% if student_logged_in? %><h3 class="panel-title">已选课程</h3>
+          <% end %>
+        </div>
+
+
+        <div class="panel-body">
+          <div class="row">
+            <%= form_tag("/courses/my_course_list", method: "post") do %>
+                <div class="form-group">
+                  <%= render 'courses/search_course_select_form', info: @all_semester,
+                             submit_name: "semester", name: "学期" %>
+                </div>
+                <button type="submit" class="btn btn-default">提交</button>
+            <% end %>
+          </div>
+
+          <table class="table table-responsive table-condensed table-hover">
+            <thead>
+            <tr>
+              <th>课程编号</th>
+              <th>课程名称</th>
+              <th>课时/学分</th>
+              <% if teacher_logged_in? %>
+                  <th>限选人数</th>
+                  <th>已选人数</th>
+              <% end %>
+              <th>考试方式</th>
+              <th>主讲教师</th>
+              <th>上课时间</th>
+            </tr>
+
+            <tbody>
+            <% @course.each do |course| %>
+                <tr>
+                  <td><%= course.course_code %></td>
+                  <!-- <td><%= course.name %></td>-->
+                  <td><%= link_to course.name, course_outline_course_url(course) %>
+
+                  <td><%= course.credit %></td>
+                  <% if teacher_logged_in? %>
+                      <td><%= course.limit_num %></td>
+                      <td><%= course.users.size %></td>
+                  <% end %>
+                  <td><%= course.exam_type %></td>
+                  <td><%= course.teacher.name %></td>
+                  <td><%= course.course_time %></td>
+                  <td>
+                    <% if teacher_logged_in? %>
+                        <%= link_to "学生信息", student_list_course_url(course) %>
+                    <% end %>
+                  </td>
+                  <td>
+                    <% if teacher_logged_in? %>
+                        <%= link_to "编辑", edit_course_url(course), class: 'btn btn-xs btn-info btn_new' %>
+                        <% if course.open %>
+                            <%= link_to "关闭", close_course_url(course), class: 'btn btn-xs btn-warning btn_new_close' %>
+                        <% else %>
+                            <%= link_to "开课", open_course_url(course), class: 'btn btn-xs btn-success' %>
+                        <% end %>
+                        <%= link_to "删除", course_path(course), :method => "delete", class: 'btn btn-xs btn-danger btn_new_del', :data => {confirm: '确定要删除此课程?'} %>
+                    <% elsif student_logged_in? %>
+                        <%= link_to "退课", quit_course_path(course), class: 'btn-sm btn-danger btn_new' %>
+                    <% end %>
+                  </td>
+                </tr>
+            <% end %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+
+    </div>
+  </div>
+</div>
+<%= render 'courses/curriculum_table' %>
